@@ -1,0 +1,81 @@
+{% load social_django %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'src/css/Page1.css' %}">
+    <title>Login - HMS</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <meta name="google-signin-client_id" content="{{ GOOGLE_OAUTH_CLIENT_ID }}">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Welcome Back To </h1>
+        <span class="highlight">HMS!</span>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form class="login-form" method="POST" action="{% url 'login_view' %}">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="password" name="password" placeholder="Enter your password" required>
+            
+
+            
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <!-- Google Login Button for Students -->
+        <div id="g_id_onload"
+             data-client_id="{{ GOOGLE_OAUTH_CLIENT_ID }}"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-login_uri="{% url 'auth_receiver' %}"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+        
+        
+        <!-- Trigger Google login -->
+        <a href="{% url 'social:login' 'google' %}">Login with Google</a>
+
+
+        <p class="signup-text">
+            New to HMS? <a href="{% url 'signup' %}" class="signup-link">Sign Up</a>
+        </p>
+        
+    </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.innerHTML = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.innerHTML = '👁️';
+            }
+        }
+    </script>
+</body>
+</html>

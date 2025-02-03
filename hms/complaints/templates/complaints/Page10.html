@@ -1,0 +1,76 @@
+<!-- filepath: /c:/My files/hms/users/templates/users/Page1.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'src/css/Page1.css' %}">
+    <title>Login - HMS</title>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Welcome Back To </h1>
+        <span class="highlight">HMS!</span>
+        <form class="login-form" method="POST" action="{% url 'login_view' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <!-- Google Login Button -->
+        <div class="google-login">
+            <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-login">
+                <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google Icon" />
+                Continue with Google
+            </a>
+        </div>
+
+        <p class="signup-text">
+            New to HMS? <a href="/signup" class="signup-link">Sign Up</a>
+        </p>
+    </div>
+
+    <script>
+        let passwordVisible = false;
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            passwordVisible = !passwordVisible;
+            passwordInput.type = passwordVisible ? 'text' : 'password';
+            document.querySelector('.toggle-password').innerHTML = passwordVisible ? '🙈' : '👁️';
+        }
+
+        // Google Sign-In Callback
+        function onSignIn(googleUser) {
+            var id_token = googleUser.getAuthResponse().id_token;
+
+            // Send the token to Django backend for authentication
+            fetch("{% url 'google_login' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token
+                },
+                body: JSON.stringify({ token: id_token })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to the home page or dashboard after successful login
+                    window.location.href = '/';
+                } else {
+                    alert('Failed to authenticate with Google.');
+                }
+            })
+            .catch(error => {
+                console.error('Error during Google login:', error);
+            });
+        }
+    </script>
+</body>
+</html>
